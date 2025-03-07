@@ -15,8 +15,8 @@ const createUserWallets = async (req, res) => {
     if (!getUser) {
       return res.status(404).json({ Message: "No user Found" });
     }
-    const existingWallet = await walletModel.findOne({ userId });
-    if (existingWallet !== userId) {
+    const existingWallet = await walletModel.findOne({user: userId });
+    if (existingWallet ) {
       return res.status(400).json({ message: "User already has a wallet" });
     }
     const createWallet = new walletModel({
@@ -28,7 +28,7 @@ const createUserWallets = async (req, res) => {
     createUserWallets.user = getUser._id;
     createWallet.save();
     getUser.wallet = createWallet._id;
-    getUser.save();
+    await getUser.save();
     return res
       .status(200)
       .json({ Message: "Wallet Created SUCCESSFULLY!", data: createWallet });
@@ -42,7 +42,7 @@ const getUserWallet = async (req, res) => {
     const { userId } = req.params;
     const wallet = await walletModel
       .findOne({ userId })
-      .populate();
+      .populate("wallet");
     if (!wallet) {
       return res.status(404).json({ message: "Wallet not found" });
     }
